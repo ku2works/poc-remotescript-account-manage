@@ -1,0 +1,6 @@
+---
+- hosts: app
+  become: True
+  roles:
+    - common
+    - sudoers

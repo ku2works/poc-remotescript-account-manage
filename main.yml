@@ -1,0 +1,2 @@
+---
+- import_playbook: internal_servers.yml
