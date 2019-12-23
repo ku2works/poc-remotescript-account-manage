@@ -1,13 +1,15 @@
 ---
 - name: ユーザグループの作成
-  group: name={{ user_group }}
+  group:
+    name: "{{ user_group }}"
 
 - name: ユーザ作成とグループ登録
-  user: >
-    name={{ item.name }}
-    password: "{{ item.password |password_hash('sha512') }}"
-    group={{ user_group }}
-    groups={{ user_group }}
+  user:
+    name: "{{ item.name }}"
+    password: "{{ item.password | password_hash('sha512', 'proptechplus') }}"
+    group: "{{ user_group }}"
+    groups: "{{ user_group }}"
+    append: yes
   with_items: "{{ users }}"
 
 # Amazon Linux上でauthorized_keyモジュールを実行するのに必須
@@ -16,18 +18,20 @@
   when: "ansible_distribution == 'Amazon'" #Amazon Linux判別
 
 - name: ユーザごとの公開鍵の登録
-  authorized_key: >
-    user={{ item.name }}
-    key={{ item.public_key }}
+  authorized_key:
+    user: "{{ item.name }}"
+    key: "{{ item.public_key }}"
   with_items: "{{ users }}"
 
 - name: インスタンス上のユーザリストの取得
   shell: 'getent group {{ user_group }} | cut -d: -f4 | tr "," "\n" | grep -v "ec2-user"'
   register: current_users
+  changed_when: false
 
 - name: usersにないユーザを削除
-  user: >
-    name={{ item }}
-    state=absent
-    remove=yes
+  user:
+    name: "{{ item }}"
+    groups: "{{ user_group }}"
+    state: absent
+    remove: yes
   with_items: "{{ current_users.stdout_lines | difference(users | map(attribute='name') | list) }}"
