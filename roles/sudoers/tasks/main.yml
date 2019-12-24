@@ -1,30 +1,31 @@
 ---
-- name: 管理者グループの作成
+- name: create admin group
   group:
     name: "{{ admin_group }}"
 
-# - name: 管理者グループをsudoersに追加
+# - name: add admin group to sudoers
 #   lineinfile:
 #     path: /etc/sudoers
 #     state: present
 #     regexp: "%{{ admin_group }}"
 #     line: "%{{ admin_group }} ALL=(ALL) NOPASSWD: ALL"
 
-- name: 管理者ユーザを管理者グループに追加
+- name: add sudoers to admin group
   user:
     name: "{{ item }}"
     groups: "{{ admin_group }}"
     append: yes
   with_items: "{{ sudoers }}"
 
-- name: 実際に管理者グループに属するユーザのリストを取得
+- name: get sudoers
   shell: 'getent group {{ admin_group }} | cut -d: -f4 | tr "," "\n"'
   register: present_sudoers
   changed_when: false
 
-- name: sudoersに存在しないユーザを管理者グループから外しユーザグループに下げる
+- name: removed sudoer drop to users group
   user:
     name: "{{ item }}"
     groups: "{{ user_group }}"
+  when: "item != 'ec2-user'"
   with_items: "{{ present_sudoers.stdout_lines | difference(sudoers) }}"
   ignore_errors: yes # ユーザが削除済みの場合があるため

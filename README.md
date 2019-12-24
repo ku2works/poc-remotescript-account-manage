@@ -5,14 +5,14 @@ do
         --query "Reservations[].Instances[].InstanceId[]" \
         --region ap-northeast-1 \
         --profile ${profile} \
-        | for instanceId in $(jq -r '.[]');
+ | for instanceId in $(jq -r '.[]');
         do
             aws ssm send-command \
                 --document-name "AWS-RunShellScript" \
                 --instance-ids ${instanceId} \
-                --parameters commands="yum -y install python-pip;pip install ansible" \
-                --region ap-northeast-1 \
-                --profile ${profile} \
+ --parameters commands="yum -y install python-pip; pip install ansible" \
+ --region ap-northeast-1 \
+ --profile \${profile} \
 
             command_id=`aws ssm send-command \
                 --document-name "AWS-RunRemoteScript" \
@@ -39,4 +39,5 @@ do
                 --output text
 
         done
+
 done

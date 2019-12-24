@@ -37,8 +37,10 @@ users:
     password: "q($-AZL,f4uf"
     public_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDZ2PjGxSzEyYrLbPZVJ5ZxIPSap8Vv6/yaifzo/pvUouA0uTIPdqIg77K36KbZ8qlnL/pyyFAGfJ9EDzjMAqakA0Cp25A1BcPfpgYN2HRiclhfoaXt6UaH4v/J9J8Ajxev/4eXJ1sxYCoan2QDWVp625KMbi0g8pF5drklLg8b9AjyG4hYYm52qv0Y/CklrWivhJ+voNRPRAL6UUaFPzCHFTzwm6tCFvLtZhPrhae/qzRTB3BYIC0jmUNUNOyaHpfXf2q6JTVsfz5kphrymIBxDyt1AypUOnUgj5S9XKr3fFOT/bUtLS2PgAbL9wrngCFFiGu87GzUPilZ1KZhUDWx shimoida@japan-reit"
 sudoers:
-  - "ec2-user"
   - "saito"
 
 admin_group: "wheel"
 user_group: "apache"
+
+sftp_placeholder_start: "# managed start #"
+sftp_placeholder_end: "# managed end #"
