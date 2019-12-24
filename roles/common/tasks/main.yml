@@ -23,45 +23,53 @@
     key: "{{ item.public_key }}"
   with_items: "{{ users }}"
 
-- name: clear sftp settings
-  shell: sed -i -e '/{{ sftp_placeholder_start }}/,/{{ sftp_placeholder_end }}/d' /etc/ssh/sshd_config
-  args:
-    warn: no
-  register: config_reset
-  failed_when: config_reset.rc not in [0, 1]
-  changed_when: false
+- name: copy sshd config
+  copy:
+    src: "../files/sshd_config"
+    dest: "/etc/ssh/"
+    owner: "root"
+    group: "root"
+    mode: "0600"
 
-- name: add header sftp managed configuration marker
-  lineinfile:
-    state: present
-    dest: /etc/ssh/sshd_config
-    line: "{{ sftp_placeholder_start }}"
-    regexp: "^{{ sftp_placeholder_start }}"
-    insertbefore: "^Match user"
-    firstmatch: yes
-  changed_when: false
+# - name: clear sftp settings
+#   shell: sed -i -e '/{{ sftp_placeholder_start }}/,/{{ sftp_placeholder_end }}/d' /etc/ssh/sshd_config
+#   args:
+#     warn: no
+#   register: config_reset
+#   failed_when: config_reset.rc not in [0, 1]
+#   changed_when: false
 
-- name: add footer sftp managed configuration marker
-  lineinfile:
-    state: present
-    dest: /etc/ssh/sshd_config
-    line: "{{ sftp_placeholder_end }}"
-    regexp: "^{{ sftp_placeholder_end }}"
-  changed_when: false
+# - name: add header sftp managed configuration marker
+#   lineinfile:
+#     state: present
+#     dest: /etc/ssh/sshd_config
+#     line: "{{ sftp_placeholder_start }}"
+#     regexp: "^{{ sftp_placeholder_start }}"
+#     insertbefore: "^Match user"
+#     firstmatch: yes
+#   changed_when: false
 
-- name: add SFTP settings
-  lineinfile:
-    state: present
-    dest: /etc/ssh/sshd_config
-    validate: "/usr/sbin/sshd -T -f %s"
-    line: "{{ 'Match user ' ~ item.name ~ '\n\tChrootDirectory /var/www/vhosts/gyro\n\tForceCommand internal-sftp -u 002' }}"
-    regexp: "Match user {{ item.name }}"
-    insertbefore: "^{{ sftp_placeholder_end }}"
-  notify:
-    - restart sshd
-  when: "item.name != 'saito'"
-  with_items: "{{ users }}"
-  changed_when: false
+# - name: add footer sftp managed configuration marker
+#   lineinfile:
+#     state: present
+#     dest: /etc/ssh/sshd_config
+#     line: "{{ sftp_placeholder_end }}"
+#     regexp: "^{{ sftp_placeholder_end }}"
+#   changed_when: false
+
+# - name: add SFTP settings
+#   lineinfile:
+#     state: present
+#     dest: /etc/ssh/sshd_config
+#     validate: "/usr/sbin/sshd -T -f %s"
+#     line: "{{ 'Match user ' ~ item.name ~ '\n\tChrootDirectory /var/www/vhosts/gyro\n\tForceCommand internal-sftp -u 002' }}"
+#     regexp: "Match user {{ item.name }}"
+#     insertbefore: "^{{ sftp_placeholder_end }}"
+#   notify:
+#     - restart sshd
+#   when: "item.name != 'saito'"
+#   with_items: "{{ users }}"
+#   changed_when: false
 
 - name: get users
   shell: 'getent group {{ user_group }} | cut -d: -f4 | tr "," "\n" | grep -v "ec2-user"'
